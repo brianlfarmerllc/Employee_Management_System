@@ -23,6 +23,7 @@ async function loadMainPrompts() {
             "View All Employees",
             "View All Employees By Department",
             "View All Employees By Manager",
+            "Add Employee",
             "EXIT"],
     });
     switch (choice) {
@@ -32,6 +33,8 @@ async function loadMainPrompts() {
             return showByDepartment();
         case "View All Employees By Manager":
             return showByManager();
+        case "Add Employee":
+            return addEmployee();
         case "EXIT":
             quit();
     }
@@ -66,22 +69,61 @@ async function showByDepartment() {
 
 async function showByManager() {
     let allManagers = await db.getAllManagers();
+    let managerList = allManagers.map((item) => item.manager)
 
-    // let { manager } = await prompt(
-    //     [
-    //         {
-    //             name: "manager",
-    //             type: "list",
-    //             message: "Which manager would you like to view?",
-    //             choices: allManagers.map((item) => item.manager),
-    //         },
-    //     ],
-    // );
+    let { manager } = await prompt(
+        [
+            {
+                name: "manager",
+                type: "list",
+                message: "Which manager would you like to view?",
+                choices: Array.from(new Set(managerList))
+            },
+        ],
+    );
 
-    // let employeesDepartment = await db.getEmployeeByDep(department);
+   
     // console.log("\n");
 
-    console.table(allManagers);
+    // console.table(allManagers);
+
+    // loadMainPrompts();
+}
+
+async function addEmployee() {``
+    let roll = await db.selectAllRole();
+    let allManagers = await db.getAllManagers();
+    let managerList = allManagers.map((item) => item.manager)
+
+    let { firstName, lastName, role, managersname } = await prompt(
+        [
+            {
+                name: "firstName",
+                type: "input",
+                message: "What is the employee's first name?",
+            },
+            {
+                name: "lastName",
+                type: "input",
+                message: "What is the employee's last name?",
+            },
+            {
+                name: "role",
+                type: "list",
+                message: "What is the employee's role?",
+                choices: roll.map((item) => item.title)
+            },
+            {
+                name: "managersname",
+                type: "list",
+                message: "Who is the employee's manager?",
+                choices: Array.from(new Set(managerList))
+            },
+        ],
+    );
+    let employeesDepartment = await db.getEmployeeByDep(department);
+    console.log("\n");
+    console.table(employeesDepartment);
 
     loadMainPrompts();
 }

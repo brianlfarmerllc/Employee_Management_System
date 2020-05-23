@@ -8,6 +8,9 @@ class DB {
 
   }
 //   functions to generate query results
+  selectAllRole () {
+    return this.connection.query(`SELECT * FROM role`)
+  }
 
   getAllEmployees() {
 
