@@ -22,6 +22,15 @@ class DB {
     });
   }
 
+  getManagerId(managersname) {
+    return this.connection.query(`SELECT id, 
+    concat (employee.first_name, " ", employee.last_name) as employee FROM employee
+    HAVING ?`,
+    {
+        employee: managersname
+    });
+  }
+
   getAllEmployees() {
 
     return this.connection.query(`SELECT employee.*, title, department_name as department, salary, 
@@ -62,12 +71,12 @@ class DB {
     });
   }
 
-  createEmployee(firstName, lastName, role, managersname) {
+  createEmployee(firstName, lastName, roleId, managerId) {
     return this.connection.query("INSERT INTO employee SET ?", {
         first_name: firstName,
         last_name: lastName,
-        role_id: role,
-        manager_id: managersname,
+        role_id: parseInt(roleId),
+        manager_id: parseInt(managerId)
       });
   }
 }

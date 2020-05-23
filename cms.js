@@ -121,13 +121,15 @@ async function addEmployee() {
         ],
     );
 
-    roleIdArray = await db.getRoleId(role)
-    roleId = roleIdArray.map((item) => item.id).toString()
-    
+    let roleIdArray = await db.getRoleId(role)
+    let roleId = roleIdArray.map((item) => item.id).toString();
+     
+    let managerIdArray = await db.getManagerId(managersname);
+    let managerId = managerIdArray.map((item) => item.id).toString();
+   
+    await db.createEmployee(firstName, lastName, roleId, managerId);
 
-       await db.createEmployee(firstName, lastName, roleId, managersname);
-
-    //    console.log("Your employee was created successfully!");
+    console.log("Your employee was created successfully!");
 
 
 
