@@ -4,8 +4,8 @@ USE employee_tracker_db;
 
 CREATE TABLE department (
     id INTEGER AUTO_INCREMENT NOT NULL,
-    name VARCHAR(30),
-    PRIMARY KEY (id),
+    department_name VARCHAR(30),
+    PRIMARY KEY (id)
 );
 
 CREATE TABLE role (
@@ -14,7 +14,7 @@ CREATE TABLE role (
     salary DECIMAL,
     department_id INTEGER,
     PRIMARY KEY (id)
-)
+);
 
 CREATE table employee (
     id INTEGER AUTO_INCREMENT NOT NULL,
@@ -24,3 +24,4 @@ CREATE table employee (
     manager_id INTEGER,
     PRIMARY KEY (id)
 )
+
