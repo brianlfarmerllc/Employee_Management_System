@@ -33,5 +33,13 @@ class DB {
   getAllDepartments () {
     return this.connection.query(`SELECT * FROM department`)
   }
+  
+  getAllManagers () {
+    return this.connection.query(`SELECT manager.id as manager_id, 
+    concat (manager.first_name, " ", manager.last_name) as manager, 
+    concat (employee.first_name, " ", employee.last_name) as employee
+    FROM employee
+    INNER JOIN employee as manager on employee.manager_id = manager.id`)
+  }
 }
 module.exports = new DB(connection);

@@ -22,6 +22,7 @@ async function loadMainPrompts() {
         choices: [
             "View All Employees",
             "View All Employees By Department",
+            "View All Employees By Manager",
             "EXIT"],
     });
     switch (choice) {
@@ -29,6 +30,8 @@ async function loadMainPrompts() {
             return showEmployees();
         case "View All Employees By Department":
             return showByDepartment();
+        case "View All Employees By Manager":
+            return showByManager();
         case "EXIT":
             quit();
     }
@@ -57,6 +60,28 @@ async function showByDepartment() {
     let employeesDepartment = await db.getEmployeeByDep(department);
     console.log("\n");
     console.table(employeesDepartment);
+
+    loadMainPrompts();
+}
+
+async function showByManager() {
+    let allManagers = await db.getAllManagers();
+
+    // let { manager } = await prompt(
+    //     [
+    //         {
+    //             name: "manager",
+    //             type: "list",
+    //             message: "Which manager would you like to view?",
+    //             choices: allManagers.map((item) => item.manager),
+    //         },
+    //     ],
+    // );
+
+    // let employeesDepartment = await db.getEmployeeByDep(department);
+    // console.log("\n");
+
+    console.table(allManagers);
 
     loadMainPrompts();
 }
