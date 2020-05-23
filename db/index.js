@@ -11,6 +11,16 @@ class DB {
   selectAllRole () {
     return this.connection.query(`SELECT * FROM role`)
   }
+  selectAllDepartments () {
+    return this.connection.query(`SELECT * FROM department`)
+  }
+
+  getRoleId(role) {
+    return this.connection.query(`SELECT id FROM role WHERE ?`,
+    {
+        title: role
+    });
+  }
 
   getAllEmployees() {
 
@@ -30,11 +40,7 @@ class DB {
       INNER JOIN employee ON role.id = employee.role_id
       WHERE ?`, {
           department_name: department
-      })
-  }
-
-  getAllDepartments () {
-    return this.connection.query(`SELECT * FROM department`)
+      });
   }
   
   getAllManagers () {
@@ -43,6 +49,26 @@ class DB {
     concat (employee.first_name, " ", employee.last_name) as employee
     FROM employee
     INNER JOIN employee as manager on employee.manager_id = manager.id`)
+  }
+
+  getEmployeeByMan(manager) {
+    return this.connection.query(`SELECT manager.id as manager_id, 
+    concat (manager.first_name, " ", manager.last_name) as manager, 
+    concat (employee.first_name, " ", employee.last_name) as employee
+    FROM employee
+    INNER JOIN employee as manager on employee.manager_id = manager.id
+    HAVING ?`,{
+        manager: manager
+    });
+  }
+
+  createEmployee(firstName, lastName, role, managersname) {
+    return this.connection.query("INSERT INTO employee SET ?", {
+        first_name: firstName,
+        last_name: lastName,
+        role_id: role,
+        manager_id: managersname,
+      });
   }
 }
 module.exports = new DB(connection);

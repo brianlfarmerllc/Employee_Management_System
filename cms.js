@@ -48,7 +48,7 @@ async function showEmployees() {
     loadMainPrompts();
 }
 async function showByDepartment() {
-    let allDepartments = await db.getAllDepartments();
+    let allDepartments = await db.selectAllDepartments();
 
     let { department } = await prompt(
         [
@@ -82,16 +82,15 @@ async function showByManager() {
         ],
     );
 
-   
-    // console.log("\n");
+    let employeesManager = await db.getEmployeeByMan(manager);
+    console.log("\n");
+    console.table(employeesManager);
 
-    // console.table(allManagers);
-
-    // loadMainPrompts();
+    loadMainPrompts();
 }
 
-async function addEmployee() {``
-    let roll = await db.selectAllRole();
+async function addEmployee() {
+    let allRolls = await db.selectAllRole();
     let allManagers = await db.getAllManagers();
     let managerList = allManagers.map((item) => item.manager)
 
@@ -111,7 +110,7 @@ async function addEmployee() {``
                 name: "role",
                 type: "list",
                 message: "What is the employee's role?",
-                choices: roll.map((item) => item.title)
+                choices: allRolls.map((item) => item.title)
             },
             {
                 name: "managersname",
@@ -121,9 +120,17 @@ async function addEmployee() {``
             },
         ],
     );
-    let employeesDepartment = await db.getEmployeeByDep(department);
-    console.log("\n");
-    console.table(employeesDepartment);
+
+    roleIdArray = await db.getRoleId(role)
+    roleId = roleIdArray.map((item) => item.id).toString()
+    
+
+       await db.createEmployee(firstName, lastName, roleId, managersname);
+
+    //    console.log("Your employee was created successfully!");
+
+
+
 
     loadMainPrompts();
 }
