@@ -19,12 +19,15 @@ class DB {
     LEFT JOIN employee as manager on employee.manager_id = manager.id`);
   }
 
-  getEmployeeByDep () {
+  getEmployeeByDep (department) {
       return this.connection.query(`SELECT department_name as department, 
       concat (employee.first_name, " ", employee.last_name) as employee
       FROM department
       INNER JOIN role ON department.id = role.department_id
-      INNER JOIN employee ON role.id = employee.role_id`)
+      INNER JOIN employee ON role.id = employee.role_id
+      WHERE ?`, {
+          department_name: department
+      })
   }
 
   getAllDepartments () {

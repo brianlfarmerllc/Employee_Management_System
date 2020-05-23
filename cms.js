@@ -27,7 +27,7 @@ async function loadMainPrompts() {
     switch (choice) {
         case "View All Employees":
             return showEmployees();
-            case "View All Employees By Department":
+        case "View All Employees By Department":
             return showByDepartment();
         case "EXIT":
             quit();
@@ -35,31 +35,31 @@ async function loadMainPrompts() {
 }
 async function showEmployees() {
     const allEmployees = await db.getAllEmployees();
-  
+
     console.log("\n");
     console.table(allEmployees);
-  
+
     loadMainPrompts();
-  }
-  async function showByDepartment() {
-      let allDepartments = await db.getAllDepartments();
-    
-      let {department} = await prompt(
+}
+async function showByDepartment() {
+    let allDepartments = await db.getAllDepartments();
+
+    let { department } = await prompt(
         [
-          {
-            name: "department",
-            type: "list",
-            message: "Which department would you like to view?",
-            choices: allDepartments.map((item) => item.department_name),
-          },
+            {
+                name: "department",
+                type: "list",
+                message: "Which department would you like to view?",
+                choices: allDepartments.map((item) => item.department_name),
+            },
         ],
-      );
-  
+    );
+    let employeesDepartment = await db.getEmployeeByDep(department);
     console.log("\n");
-    // console.table(deptEmployees);
-  
+    console.table(employeesDepartment);
+
     loadMainPrompts();
-  }
+}
 
 function quit() {
     console.log("Goodbye!");
