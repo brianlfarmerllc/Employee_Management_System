@@ -21,11 +21,14 @@ async function loadMainPrompts() {
         message: "What would you like to do?",
         choices: [
             "View All Employees",
+            "View All Employees By Department",
             "EXIT"],
     });
     switch (choice) {
         case "View All Employees":
             return showEmployees();
+            case "View All Employees By Department":
+            return showByDepartment();
         case "EXIT":
             quit();
     }
@@ -35,6 +38,25 @@ async function showEmployees() {
   
     console.log("\n");
     console.table(allEmployees);
+  
+    loadMainPrompts();
+  }
+  async function showByDepartment() {
+      let allDepartments = await db.getAllDepartments();
+    
+      let {department} = await prompt(
+        [
+          {
+            name: "department",
+            type: "list",
+            message: "Which department would you like to view?",
+            choices: allDepartments.map((item) => item.department_name),
+          },
+        ],
+      );
+  
+    console.log("\n");
+    // console.table(deptEmployees);
   
     loadMainPrompts();
   }
