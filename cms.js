@@ -26,26 +26,35 @@ async function loadMainPrompts() {
             "Add A New Department",
             "Add A New Role",
             "Add Employee",
+            "Update Employee",
             "Remove Employee",
             "EXIT"],
     });
-    switch (choice) {
-        case "View All Employees":
-            return showEmployees();
-        case "View All Employees By Department":
-            return showByDepartment();
-        case "View All Employees By Manager":
-            return showByManager();
-        case "Add A New Department":
-            return addDepartment();
-        case "Add A New Role":
-            return addRole();
-        case "Add Employee":
-            return addEmployee();
-        case "Remove Employee":
-            return removeEmployee();
-        case "EXIT":
-            quit();
+
+    try {
+        switch (choice) {
+            case "View All Employees":
+                return showEmployees();
+            case "View All Employees By Department":
+                return showByDepartment();
+            case "View All Employees By Manager":
+                return showByManager();
+            case "Add A New Department":
+                return addDepartment();
+            case "Add A New Role":
+                return addRole();
+            case "Add Employee":
+                return addEmployee();
+            case "Update Employee":
+                return UpdateEmployee();
+            case "Remove Employee":
+                return removeEmployee();
+            case "EXIT":
+                quit();
+        }    
+    } catch (error) {
+        console.log(error);
+        quit();
     }
 }
 async function showEmployees() {
@@ -190,6 +199,42 @@ async function addEmployee() {
     console.log("\n" + "Your employee was created successfully!" + "\n");
 
     loadMainPrompts();
+}
+
+async function UpdateEmployee() {
+    let employees = await db.namesAllEmployees();
+    let employeeNames = employees.map((item) => item.employee)
+    let allRolls = await db.selectAllRole();
+    let rollTitles = allRolls.map((item) => item.title)
+   
+    let { name, role } = await prompt(
+        [
+            {
+                name: "name",
+                type: "list",
+                message: "Which employee would you like to update?",
+                choices: employeeNames
+            },
+            {
+                name: "role",
+                type: "list",
+                message: "What is the employees new role?",
+                choices: rollTitles
+            }
+        ]
+    )
+
+    let roleIdArray = await db.getRoleId(role)
+    let roleId = roleIdArray.map((item) => item.id).toString();
+    let employeeArray = await db.getEmployeeId(name);
+    let employeeID = employeeArray.map((item) => item.id).toString();
+   
+    await db.createEmployeeUpdate(employeeID,roleId);
+
+    console.log("\n" + "Your employee was updated successfully!" + "\n");
+
+    loadMainPrompts();
+
 }
 
 async function removeEmployee() {

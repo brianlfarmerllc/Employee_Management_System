@@ -52,8 +52,8 @@ class DB {
     }
 
     getEmployeeByDep(department) {
-        return this.connection.query(`SELECT department_name as department, 
-      concat (employee.first_name, " ", employee.last_name) as employee
+        return this.connection.query(`SELECT employee.id as "employee id", department_name as department, 
+      concat (employee.first_name, " ", employee.last_name) as employee, title, salary
       FROM department
       INNER JOIN role ON department.id = role.department_id
       INNER JOIN employee ON role.id = employee.role_id
@@ -103,11 +103,24 @@ class DB {
             manager_id: parseInt(managerId)
         });
     }
+
+    createEmployeeUpdate(employeeID,roleId) {
+        return this.connection.query("UPDATE employee SET ? WHERE ?",
+            [
+                {
+                    role_id: roleId
+                },
+                {
+                    id: employeeID
+                }
+            ]);
+    }
+
     removeEmployeeData(employeeId) {
         return this.connection.query("DELETE FROM employee WHERE ?",
-        {
-            id: parseInt(employeeId)
-        }
+            {
+                id: parseInt(employeeId)
+            }
         )
     }
 }
