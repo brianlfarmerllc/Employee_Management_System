@@ -24,6 +24,7 @@ async function loadMainPrompts() {
             "View All Employees By Department",
             "View All Employees By Manager",
             "Add Employee",
+            "Remove Employee",
             "EXIT"],
     });
     switch (choice) {
@@ -35,6 +36,8 @@ async function loadMainPrompts() {
             return showByManager();
         case "Add Employee":
             return addEmployee();
+        case "Remove Employee":
+            return removeEmployee();
         case "EXIT":
             quit();
     }
@@ -91,10 +94,10 @@ async function showByManager() {
 
 async function addEmployee() {
     let allRolls = await db.selectAllRole();
-    let allManagers = await db.getAllManagers();
-    let managerList = allManagers.map((item) => item.manager)
+    let employees = await db.namesAllEmployees();
+    let employeeNames = employees.map((item) => item.employee)
 
-    let { firstName, lastName, role, managersname } = await prompt(
+    let { firstName, lastName, role, name } = await prompt(
         [
             {
                 name: "firstName",
@@ -113,26 +116,47 @@ async function addEmployee() {
                 choices: allRolls.map((item) => item.title)
             },
             {
-                name: "managersname",
+                name: "name",
                 type: "list",
                 message: "Who is the employee's manager?",
-                choices: Array.from(new Set(managerList))
+                choices: employeeNames
+
             },
         ],
     );
 
     let roleIdArray = await db.getRoleId(role)
     let roleId = roleIdArray.map((item) => item.id).toString();
-     
-    let managerIdArray = await db.getManagerId(managersname);
+
+    let managerIdArray = await db.getEmployeeId(name);
     let managerId = managerIdArray.map((item) => item.id).toString();
-   
+
     await db.createEmployee(firstName, lastName, roleId, managerId);
 
-    console.log("Your employee was created successfully!");
+    console.log("\n" + "Your employee was created successfully!" + "\n");
 
+    loadMainPrompts();
+}
 
+async function removeEmployee() {
+    let employees = await db.namesAllEmployees();
+    let employeeNames = employees.map((item) => item.employee)
 
+    let { name } = await prompt(
+        {
+            name: "name",
+            type: "list",
+            message: "Which employee would you like to remove?",
+            choices: employeeNames
+        }
+    )
+
+    let employeeArray = await db.getEmployeeId(name);
+    let employeeID = employeeArray.map((item) => item.id).toString();
+    
+    await db.removeEmployeeData(employeeID)
+
+    console.log("\n" + "Your employee was removed successfully!" + "\n");
 
     loadMainPrompts();
 }
