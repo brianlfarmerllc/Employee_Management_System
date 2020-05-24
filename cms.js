@@ -1,8 +1,8 @@
+// all requires needed to run application
 const { prompt } = require("inquirer");
 const logo = require("asciiart-logo");
 const db = require("./db");
 require("console.table");
-
 
 init();
 
@@ -31,8 +31,6 @@ async function loadMainPrompts() {
             "View Budgets",
             "EXIT"],
     });
-
-
     switch (choice) {
         case "View All Employees":
             return showEmployees();
@@ -58,206 +56,220 @@ async function loadMainPrompts() {
 
 }
 async function showEmployees() {
-    const allEmployees = await db.getAllEmployees();
-
-    console.log("\n");
-    console.table(allEmployees);
-
-    loadMainPrompts();
+    try {
+        const allEmployees = await db.getAllEmployees();
+        console.log("\n");
+        console.table(allEmployees);
+        loadMainPrompts();
+    } catch (error) {
+        console.log("\n" + "There seems to be an error sorry for the inconvenience" + "\n")
+        console.table(error)
+        process.exit();
+    }
 }
 async function showByDepartment() {
-    let allDepartments = await db.selectAllDepartments();
-
-    let { department } = await prompt(
-        [
+    try {
+        const departmentChoices = await db.selectAllDepartments();
+        let { department } = await prompt(
             {
                 name: "department",
                 type: "list",
                 message: "Which department would you like to view?",
-                choices: allDepartments.map((item) => item.department_name),
-            },
-        ],
-    );
-    let employeesDepartment = await db.getEmployeeByDep(department);
-    console.log("\n");
-    console.table(employeesDepartment);
-
-    loadMainPrompts();
+                choices: departmentChoices.map((item) => item.department_name),
+            }
+        );
+        let employeesDepartment = await db.getEmployeeByDep(department);
+        console.log("\n");
+        console.table(employeesDepartment);
+        loadMainPrompts();
+    } catch (error) {
+        console.log("\n" + "There seems to be an error sorry for the inconvenience" + "\n")
+        console.table(error)
+        process.exit();
+    }
 }
 
 async function showByManager() {
-    let allManagers = await db.getAllManagers();
-    let managerList = allManagers.map((item) => item.manager)
-
-    let { manager } = await prompt(
-        [
+    try {
+        let allManagers = await db.getAllManagers();
+        let managerList = allManagers.map((item) => item.manager)
+        let { manager } = await prompt(
             {
                 name: "manager",
                 type: "list",
                 message: "Which manager would you like to view?",
                 choices: Array.from(new Set(managerList))
-            },
-        ],
-    );
-
-    let employeesManager = await db.getEmployeeByMan(manager);
-    console.log("\n");
-    console.table(employeesManager);
-
-    loadMainPrompts();
+            }
+        );
+        let employeesManager = await db.getEmployeeByMan(manager);
+        console.log("\n");
+        console.table(employeesManager);
+        loadMainPrompts();
+    } catch (error) {
+        console.log("\n" + "There seems to be an error sorry for the inconvenience" + "\n")
+        console.table(error)
+        process.exit();
+    }
 }
 
 async function addDepartment() {
-
-    let { newDepartment } = await prompt(
-        [
+    try {
+        let { newDepartment } = await prompt(
             {
                 name: "newDepartment",
                 type: "input",
                 message: "What is the name of the department you would like to add?",
             }
-        ]
-    )
-    await db.createDepartment(newDepartment)
-    console.log("\n" + "Your department was created successfully!" + "\n");
-    loadMainPrompts()
+        );
+        await db.createDepartment(newDepartment)
+        console.log("\n" + "Your department was created successfully!" + "\n");
+        loadMainPrompts()
+    } catch (error) {
+        console.log("\n" + "There seems to be an error sorry for the inconvenience" + "\n")
+        console.table(error)
+        process.exit();
+    }
 }
 
 async function addRole() {
-    let departmentChoices = await db.selectAllDepartments();
-    let { newRole, salary, department } = await prompt(
-        [
-            {
-                name: "newRole",
-                type: "input",
-                message: "What is the name of the role you would like to add?",
-            },
-            {
-                name: "salary",
-                type: "input",
-                message: "What is the annual salary for the role?",
-            },
-            {
-                name: "department",
-                type: "list",
-                message: "What department does the role belong to?",
-                choices: departmentChoices.map((item) => item.department_name)
-            }
-        ]
-    )
-    let departmentIdArray = await db.getDepartmentId(department)
-    let departmentId = departmentIdArray.map((item) => item.id).toString();
-
-    await db.createRole(newRole, salary, departmentId);
-
-    console.log("\n" + "Your role was created successfully!" + "\n");
-
-    loadMainPrompts();
+    try {
+        const departmentChoices = await db.selectAllDepartments();
+        let { newRole, salary, department } = await prompt(
+            [
+                {
+                    name: "newRole",
+                    type: "input",
+                    message: "What is the name of the role you would like to add?",
+                },
+                {
+                    name: "salary",
+                    type: "input",
+                    message: "What is the annual salary for the role?",
+                },
+                {
+                    name: "department",
+                    type: "list",
+                    message: "What department does the role belong to?",
+                    choices: departmentChoices.map((item) => item.department_name)
+                }
+            ]
+        );
+        let departmentIdArray = await db.getDepartmentId(department)
+        let departmentId = departmentIdArray.map((item) => item.id).toString();
+        await db.createRole(newRole, salary, departmentId);
+        console.log("\n" + "Your role was created successfully!" + "\n");
+        loadMainPrompts();
+    } catch (error) {
+        console.log("\n" + "There seems to be an error sorry for the inconvenience" + "\n")
+        console.table(error)
+        process.exit();
+    }
 }
 
 async function addEmployee() {
-    let allRolls = await db.selectAllRole();
-    let employees = await db.namesAllEmployees();
-    let employeeNames = employees.map((item) => item.employee)
-
-    let { firstName, lastName, role, name } = await prompt(
-        [
-            {
-                name: "firstName",
-                type: "input",
-                message: "What is the employee's first name?",
-            },
-            {
-                name: "lastName",
-                type: "input",
-                message: "What is the employee's last name?",
-            },
-            {
-                name: "role",
-                type: "list",
-                message: "What is the employee's role?",
-                choices: allRolls.map((item) => item.title)
-            },
-            {
-                name: "name",
-                type: "list",
-                message: "Who is the employee's manager?",
-                choices: employeeNames
-
-            },
-        ],
-    );
-
-    let roleIdArray = await db.getRoleId(role)
-    let roleId = roleIdArray.map((item) => item.id).toString();
-
-    let managerIdArray = await db.getEmployeeId(name);
-    let managerId = managerIdArray.map((item) => item.id).toString();
-
-    await db.createEmployee(firstName, lastName, roleId, managerId);
-
-    console.log("\n" + "Your employee was created successfully!" + "\n");
-
-    loadMainPrompts();
+    try {
+        let allRolls = await db.selectAllRole();
+        let employees = await db.namesAllEmployees();
+        let employeeNames = employees.map((item) => item.employee)
+        let { firstName, lastName, role, name } = await prompt(
+            [
+                {
+                    name: "firstName",
+                    type: "input",
+                    message: "What is the employee's first name?",
+                },
+                {
+                    name: "lastName",
+                    type: "input",
+                    message: "What is the employee's last name?",
+                },
+                {
+                    name: "role",
+                    type: "list",
+                    message: "What is the employee's role?",
+                    choices: allRolls.map((item) => item.title)
+                },
+                {
+                    name: "name",
+                    type: "list",
+                    message: "Who is the employee's manager?",
+                    choices: employeeNames
+    
+                }
+            ]
+        );
+        let roleIdArray = await db.getRoleId(role)
+        let roleId = roleIdArray.map((item) => item.id).toString();
+        let managerIdArray = await db.getEmployeeId(name);
+        let managerId = managerIdArray.map((item) => item.id).toString();
+        await db.createEmployee(firstName, lastName, roleId, managerId);
+        console.log("\n" + "Your employee was created successfully!" + "\n");
+        loadMainPrompts();
+    } catch (error) {
+        console.log("\n" + "There seems to be an error sorry for the inconvenience" + "\n")
+        console.table(error)
+        process.exit();
+    }
 }
 
 async function UpdateEmployee() {
-    let employees = await db.namesAllEmployees();
-    let employeeNames = employees.map((item) => item.employee)
-    let allRolls = await db.selectAllRole();
-    let rollTitles = allRolls.map((item) => item.title)
-
-    let { name, role } = await prompt(
-        [
-            {
-                name: "name",
-                type: "list",
-                message: "Which employee would you like to update?",
-                choices: employeeNames
-            },
-            {
-                name: "role",
-                type: "list",
-                message: "What is the employees new role?",
-                choices: rollTitles
-            }
-        ]
-    )
-
-    let roleIdArray = await db.getRoleId(role)
-    let roleId = roleIdArray.map((item) => item.id).toString();
-    let employeeArray = await db.getEmployeeId(name);
-    let employeeID = employeeArray.map((item) => item.id).toString();
-
-    await db.createEmployeeUpdate(employeeID, roleId);
-
-    console.log("\n" + "Your employee was updated successfully!" + "\n");
-
-    loadMainPrompts();
+    try {
+        let employees = await db.namesAllEmployees();
+        let employeeNames = employees.map((item) => item.employee)
+        let allRolls = await db.selectAllRole();
+        let rollTitles = allRolls.map((item) => item.title)
+        let { name, role } = await prompt(
+            [
+                {
+                    name: "name",
+                    type: "list",
+                    message: "Which employee would you like to update?",
+                    choices: employeeNames
+                },
+                {
+                    name: "role",
+                    type: "list",
+                    message: "What is the employees new role?",
+                    choices: rollTitles
+                }
+            ]
+        )
+        let roleIdArray = await db.getRoleId(role)
+        let roleId = roleIdArray.map((item) => item.id).toString();
+        let employeeArray = await db.getEmployeeId(name);
+        let employeeID = employeeArray.map((item) => item.id).toString();
+        await db.createEmployeeUpdate(employeeID, roleId);
+        console.log("\n" + "Your employee was updated successfully!" + "\n");
+        loadMainPrompts();
+    } catch (error) {
+        console.log("\n" + "There seems to be an error sorry for the inconvenience" + "\n")
+        console.table(error)
+        process.exit();
+    }
 
 }
 
 async function removeEmployee() {
-    let employees = await db.namesAllEmployees();
-    let employeeNames = employees.map((item) => item.employee)
-
-    let { name } = await prompt(
-        {
-            name: "name",
-            type: "list",
-            message: "Which employee would you like to remove?",
-            choices: employeeNames
-        }
-    )
-
-    let employeeArray = await db.getEmployeeId(name);
-    let employeeID = employeeArray.map((item) => item.id).toString();
-
-    await db.removeEmployeeData(employeeID)
-
-    console.log("\n" + "Your employee was removed successfully!" + "\n");
-
-    loadMainPrompts();
+    try {
+        let employees = await db.namesAllEmployees();
+        let { name } = await prompt(
+            {
+                name: "name",
+                type: "list",
+                message: "Which employee would you like to remove?",
+                choices: employees.map((item) => item.employee)
+            }
+        )
+        let employeeArray = await db.getEmployeeId(name);
+        let employeeID = employeeArray.map((item) => item.id).toString();
+        await db.removeEmployeeData(employeeID)
+        console.log("\n" + "Your employee was removed successfully!" + "\n");
+        loadMainPrompts();
+    } catch (error) {
+        console.log("\n" + "There seems to be an error sorry for the inconvenience" + "\n")
+        console.table(error)
+        process.exit();
+    }
 }
 
 async function viewBudgets() {
@@ -281,34 +293,38 @@ async function viewBudgets() {
 }
 
 async function viewAllBudgets() {
-    const allBudgets = await db.getAllBudgets();
-
-    console.log("\n");
-    console.table(allBudgets);
-
-    loadMainPrompts();
+    try {
+        const allBudgets = await db.getAllBudgets();
+        console.log("\n");
+        console.table(allBudgets);
+        loadMainPrompts();
+    } catch (error) {
+        console.log("\n" + "There seems to be an error sorry for the inconvenience" + "\n")
+        console.table(error)
+        process.exit();
+    }
 }
 
 async function viewBudgetsByDepartment() {
-    let departmentChoices = await db.selectAllDepartments();
-    let { department } = await prompt(
-        [
-            {
-                name: "department",
-                type: "list",
-                message: "What department budget would you like to view?",
-                choices: departmentChoices.map((item) => item.department_name)
-            }
-        ]
-    )
-
-    const departmentBudget = await db.getDepartmentBudget(department);
-
-    console.log("\n");
-    console.table(departmentBudget)
-
-    loadMainPrompts();
-
+    try {
+        const departmentChoices = await db.selectAllDepartments();
+        let { department } = await prompt(
+                {
+                    name: "department",
+                    type: "list",
+                    message: "What department budget would you like to view?",
+                    choices: departmentChoices.map((item) => item.department_name)
+                }
+        );
+        const departmentBudget = await db.getDepartmentBudget(department);
+        console.log("\n");
+        console.table(departmentBudget)
+        loadMainPrompts();
+    } catch (error) {
+        console.log("\n" + "There seems to be an error sorry for the inconvenience" + "\n")
+        console.table(error)
+        process.exit();
+    }
 }
 
 function quit() {

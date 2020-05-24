@@ -35,10 +35,9 @@ class DB {
     getEmployeeId(name) {
         return this.connection.query(`SELECT id, 
     concat (employee.first_name, " ", employee.last_name) as employee FROM employee
-    HAVING ?`,
-            {
-                employee: name
-            });
+    HAVING ?`, {
+            employee: name
+        });
     }
 
     getAllEmployees() {
@@ -71,12 +70,14 @@ class DB {
     }
 
     getEmployeeByMan(manager) {
-        return this.connection.query(`SELECT manager.id as manager_id, 
-    concat (manager.first_name, " ", manager.last_name) as manager, 
-    concat (employee.first_name, " ", employee.last_name) as employee
-    FROM employee
-    INNER JOIN employee as manager on employee.manager_id = manager.id
-    HAVING ?`, {
+        return this.connection.query(`SELECT 
+        concat (manager.first_name, " ", manager.last_name) as manager, 
+        concat (employee.first_name, " ", employee.last_name) as employee,
+        title, salary, department_name as department
+        FROM employee
+        INNER JOIN role ON role.id = employee.role_id
+        INNER JOIN department ON department.id = role.department_id
+        INNER JOIN employee as manager on employee.manager_id = manager.id HAVING ?`, {
             manager: manager
         });
     }
@@ -104,7 +105,7 @@ class DB {
         });
     }
 
-    createEmployeeUpdate(employeeID,roleId) {
+    createEmployeeUpdate(employeeID, roleId) {
         return this.connection.query("UPDATE employee SET ? WHERE ?",
             [
                 {
@@ -138,9 +139,9 @@ class DB {
         INNER JOIN department ON department.id = role.department_id
         INNER JOIN employee ON employee.role_id = role.id
         WHERE ?`,
-        {
-            department_name: department
-        }
+            {
+                department_name: department
+            }
         )
     }
 }
