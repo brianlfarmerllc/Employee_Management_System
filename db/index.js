@@ -18,6 +18,13 @@ class DB {
         return this.connection.query(`SELECT concat (employee.first_name, " ", employee.last_name) as employee FROM employee`)
     }
 
+    getDepartmentId(department) {
+        return this.connection.query(`SELECT id FROM department WHERE ?`,
+            {
+                department_name: department
+            });
+    }
+
     getRoleId(role) {
         return this.connection.query(`SELECT id FROM role WHERE ?`,
             {
@@ -71,6 +78,20 @@ class DB {
     INNER JOIN employee as manager on employee.manager_id = manager.id
     HAVING ?`, {
             manager: manager
+        });
+    }
+
+    createDepartment(newDepartment) {
+        return this.connection.query("INSERT INTO department SET ?", {
+            department_name: newDepartment
+        });
+    }
+
+    createRole(newRole, salary, departmentId) {
+        return this.connection.query("INSERT INTO role SET ?", {
+            title: newRole,
+            salary: parseInt(salary),
+            department_id: parseInt(departmentId)
         });
     }
 
