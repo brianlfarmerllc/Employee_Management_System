@@ -23,6 +23,7 @@ async function loadMainPrompts() {
             "View All Employees",
             "View All Employees By Department",
             "View All Employees By Manager",
+            "View Departments And Roles",
             "Add A New Department",
             "Add A New Role",
             "Add A New Employee",
@@ -38,6 +39,8 @@ async function loadMainPrompts() {
             return showByDepartment();
         case "View All Employees By Manager":
             return showByManager();
+        case "View Departments And Roles":
+            return showDepartRoles();
         case "Add A New Department":
             return addDepartment();
         case "Add A New Role":
@@ -104,6 +107,19 @@ async function showByManager() {
         let employeesManager = await db.getEmployeeByMan(manager);
         console.log("\n");
         console.table(employeesManager);
+        loadMainPrompts();
+    } catch (error) {
+        console.log("\n" + "There seems to be an error sorry for the inconvenience" + "\n")
+        console.table(error)
+        process.exit();
+    }
+}
+
+async function showDepartRoles () {
+    try {
+        const allDepartRoles = await db.getAllDepartRoles();
+        console.log("\n");
+        console.table(allDepartRoles);
         loadMainPrompts();
     } catch (error) {
         console.log("\n" + "There seems to be an error sorry for the inconvenience" + "\n")
