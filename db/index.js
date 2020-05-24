@@ -123,5 +123,25 @@ class DB {
             }
         )
     }
+
+    getAllBudgets() {
+        return this.connection.query(`SELECT  department_name as department, sum(salary) as budget
+        FROM role 
+        INNER JOIN department ON department.id = role.department_id
+        INNER JOIN employee ON employee.role_id = role.id
+        GROUP BY department_name`)
+    }
+
+    getDepartmentBudget(department) {
+        return this.connection.query(`SELECT  department_name as department, sum(salary) as budget
+        FROM role 
+        INNER JOIN department ON department.id = role.department_id
+        INNER JOIN employee ON employee.role_id = role.id
+        WHERE ?`,
+        {
+            department_name: department
+        }
+        )
+    }
 }
 module.exports = new DB(connection);

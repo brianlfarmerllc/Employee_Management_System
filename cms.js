@@ -25,37 +25,37 @@ async function loadMainPrompts() {
             "View All Employees By Manager",
             "Add A New Department",
             "Add A New Role",
-            "Add Employee",
+            "Add A New Employee",
             "Update Employee",
             "Remove Employee",
+            "View Budgets",
             "EXIT"],
     });
 
-    try {
-        switch (choice) {
-            case "View All Employees":
-                return showEmployees();
-            case "View All Employees By Department":
-                return showByDepartment();
-            case "View All Employees By Manager":
-                return showByManager();
-            case "Add A New Department":
-                return addDepartment();
-            case "Add A New Role":
-                return addRole();
-            case "Add Employee":
-                return addEmployee();
-            case "Update Employee":
-                return UpdateEmployee();
-            case "Remove Employee":
-                return removeEmployee();
-            case "EXIT":
-                quit();
-        }    
-    } catch (error) {
-        console.log(error);
-        quit();
+
+    switch (choice) {
+        case "View All Employees":
+            return showEmployees();
+        case "View All Employees By Department":
+            return showByDepartment();
+        case "View All Employees By Manager":
+            return showByManager();
+        case "Add A New Department":
+            return addDepartment();
+        case "Add A New Role":
+            return addRole();
+        case "Add A New Employee":
+            return addEmployee();
+        case "Update Employee":
+            return UpdateEmployee();
+        case "Remove Employee":
+            return removeEmployee();
+        case "View Budgets":
+            return viewBudgets();
+        case "EXIT":
+            quit();
     }
+
 }
 async function showEmployees() {
     const allEmployees = await db.getAllEmployees();
@@ -108,7 +108,7 @@ async function showByManager() {
 }
 
 async function addDepartment() {
-    
+
     let { newDepartment } = await prompt(
         [
             {
@@ -206,7 +206,7 @@ async function UpdateEmployee() {
     let employeeNames = employees.map((item) => item.employee)
     let allRolls = await db.selectAllRole();
     let rollTitles = allRolls.map((item) => item.title)
-   
+
     let { name, role } = await prompt(
         [
             {
@@ -228,8 +228,8 @@ async function UpdateEmployee() {
     let roleId = roleIdArray.map((item) => item.id).toString();
     let employeeArray = await db.getEmployeeId(name);
     let employeeID = employeeArray.map((item) => item.id).toString();
-   
-    await db.createEmployeeUpdate(employeeID,roleId);
+
+    await db.createEmployeeUpdate(employeeID, roleId);
 
     console.log("\n" + "Your employee was updated successfully!" + "\n");
 
@@ -258,6 +258,57 @@ async function removeEmployee() {
     console.log("\n" + "Your employee was removed successfully!" + "\n");
 
     loadMainPrompts();
+}
+
+async function viewBudgets() {
+    const { choice } = await prompt({
+        name: "choice",
+        type: "list",
+        message: "How would you like to view the budgets?",
+        choices: [
+            "View All Department Budgets",
+            "View Budgets For Specific Department",
+            "Return to Main"],
+    })
+    switch (choice) {
+        case "View All Department Budgets":
+            return viewAllBudgets();
+        case "View Budgets For Specific Department":
+            return viewBudgetsByDepartment();
+        case "Return to Main":
+            loadMainPrompts();
+    }
+}
+
+async function viewAllBudgets() {
+    const allBudgets = await db.getAllBudgets();
+
+    console.log("\n");
+    console.table(allBudgets);
+
+    loadMainPrompts();
+}
+
+async function viewBudgetsByDepartment() {
+    let departmentChoices = await db.selectAllDepartments();
+    let { department } = await prompt(
+        [
+            {
+                name: "department",
+                type: "list",
+                message: "What department budget would you like to view?",
+                choices: departmentChoices.map((item) => item.department_name)
+            }
+        ]
+    )
+
+    const departmentBudget = await db.getDepartmentBudget(department);
+
+    console.log("\n");
+    console.table(departmentBudget)
+
+    loadMainPrompts();
+
 }
 
 function quit() {
