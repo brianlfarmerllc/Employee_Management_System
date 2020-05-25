@@ -123,6 +123,14 @@ class DB {
         });
     };
 
+    getEmployeeIdMan(manager) {
+        return this.connection.query(`SELECT id, 
+        concat (employee.first_name, " ", employee.last_name) as employee FROM employee
+        HAVING ?`, {
+            employee: manager
+        });
+    };
+
     getRoleId(role) {
         return this.connection.query(`SELECT id FROM role WHERE ?`,
         {
@@ -147,5 +155,17 @@ class DB {
     selectAllRole() {
         return this.connection.query(`SELECT * FROM role`)
     };
+    
+    updateManager(employeeID, managerId) {
+        return this.connection.query("UPDATE employee SET ? WHERE ?",
+        [
+            {
+                manager_id: managerId
+            },
+            {
+                id: employeeID
+            }
+        ]);
+    }
 }
 module.exports = new DB(connection);

@@ -27,7 +27,8 @@ async function loadMainPrompts() {
             "Add A New Department",
             "Add A New Role",
             "Add A New Employee",
-            "Update Employee",
+            "Update Employee Role",
+            "Update Employee Manager",
             "Remove Employee",
             "View Budgets",
             "EXIT"],
@@ -47,8 +48,10 @@ async function loadMainPrompts() {
             return addRole();
         case "Add A New Employee":
             return addEmployee();
-        case "Update Employee":
-            return UpdateEmployee();
+        case "Update Employee Role":
+            return updateEmployee();
+        case "Update Employee Manager":
+            return updateEmployeeManager();
         case "Remove Employee":
             return removeEmployee();
         case "View Budgets":
@@ -115,7 +118,7 @@ async function showByManager() {
     }
 }
 
-async function showDepartRoles () {
+async function showDepartRoles() {
     try {
         const allDepartRoles = await db.getAllDepartRoles();
         console.log("\n");
@@ -210,7 +213,7 @@ async function addEmployee() {
                     type: "list",
                     message: "Who is the employee's manager?",
                     choices: employeeNames
-    
+
                 }
             ]
         );
@@ -228,7 +231,7 @@ async function addEmployee() {
     }
 }
 
-async function UpdateEmployee() {
+async function updateEmployee() {
     try {
         let employees = await db.namesAllEmployees();
         let employeeNames = employees.map((item) => item.employee)
@@ -257,6 +260,43 @@ async function UpdateEmployee() {
         await db.createEmployeeUpdate(employeeID, roleId);
         console.log("\n" + "Your employee was updated successfully!" + "\n");
         loadMainPrompts();
+    } catch (error) {
+        console.log("\n" + "There seems to be an error sorry for the inconvenience" + "\n")
+        console.table(error)
+        process.exit();
+    }
+
+}
+
+async function updateEmployeeManager() {
+    try {
+        let employees = await db.namesAllEmployees();
+        let { name, manager } = await prompt(
+            [
+                {
+                    name: "name",
+                    type: "list",
+                    message: "Which employee would you like to update?",
+                    choices: employees.map((item) => item.employee)
+                },
+                {
+                    name: "manager",
+                    type: "list",
+                    message: "Who is this employees updated manager?",
+                    choices: employees.map((item) => item.employee)
+                }
+            ]
+        )
+        let employeeArray = await db.getEmployeeId(name);
+        let employeeID = employeeArray.map((item) => item.id).toString();
+        let newManagerArray = await db.getEmployeeIdMan(manager);
+        let managerId = newManagerArray.map((item) => item.id).toString();
+        console.log(employeeID)
+        console.log(managerId)
+        await db.updateManager(employeeID, managerId);
+        console.log("\n" + "Your employee was updated successfully!" + "\n");
+        loadMainPrompts();
+
     } catch (error) {
         console.log("\n" + "There seems to be an error sorry for the inconvenience" + "\n")
         console.table(error)
@@ -325,12 +365,12 @@ async function viewBudgetsByDepartment() {
     try {
         const departmentChoices = await db.selectAllDepartments();
         let { department } = await prompt(
-                {
-                    name: "department",
-                    type: "list",
-                    message: "What department budget would you like to view?",
-                    choices: departmentChoices.map((item) => item.department_name)
-                }
+            {
+                name: "department",
+                type: "list",
+                message: "What department budget would you like to view?",
+                choices: departmentChoices.map((item) => item.department_name)
+            }
         );
         const departmentBudget = await db.getDepartmentBudget(department);
         console.log("\n");
