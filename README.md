@@ -35,7 +35,7 @@
 
   The following image demonstrates the application functionality:
 
-  ![Employee Management System Application Demo](./assets/employee_management_system.gif)
+  ![Employee Management System Application Demo](./Assets/employee_management_system.gif)
 
   ## Technologies
 
