@@ -344,6 +344,6 @@ async function viewBudgetsByDepartment() {
 }
 
 function quit() {
-    console.log("Goodbye!");
+    console.log("\n" + "Goodbye!" + "\n");
     process.exit();
 }
